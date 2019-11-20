@@ -1,4 +1,7 @@
 #!/bin/bash
+# TODO: access Movies folder too, start with a whitelist of existing files in Pictures and Movies and ignore those, and grab all files other than those
+# because not all pictures get named signal* sometimes they get named something else like 20170328_144853.jpeg in Pictures and we need them..
+# TODO: access DOCUMENTS too not just MEDIA (tabs are shown when you navigate to 'all media')
 set -e
 cd /mint19/home/user/Pictures/phone/signalpix_20191119
 echo "present directory is $PWD and thats where stuff will be sent"
