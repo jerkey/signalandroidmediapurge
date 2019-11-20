@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+cd /mint19/home/user/Pictures/phone/signalpix_20191119
+echo "present directory is $PWD and thats where stuff will be sent"
+echo 'hit control-C if you did not FIRST CLEAR Pictures folder of signal-YYYY-MM-DD-hhmmss.* otherwise press ENTER'
+read -p "now enter the name of the folder you want to store this conversations pictures in: " DESTFOLDER
+mkdir $DESTFOLDER
+cd $DESTFOLDER
+echo -e 'now navigate to the conversation for which you want to migrate all the pictures, and navigate to \nall media\nand then press ENTER' # different touch spot depending on whether disappearing messages enabled
+read
+# long press on first picture
+adb shell input touchscreen swipe 240 668 240 668 500
+sleep 0.5
+# click box with dots around it to "select all"
+adb shell input mouse tap 1364 180
+sleep 0.5
+# click download arrow (third from right) to save all
+adb shell input mouse tap 1021 176
+sleep 0.5
+# click "yes" to save all pictures to Pictures/signal*
+adb shell input mouse tap 1206 1504
+sleep 0.5
+# copy all the pictures from the phone to local storage
+echo -e 'now wait for the saving process to finish on the phone, THEN press ENTER'
+read
+adb shell ls '/sdcard/Pictures/signal*' | tr '\r' ' ' | xargs -n1 adb pull -p
+sleep 0.5
+# delete all those pictures from the phone's Pictures folder
+adb shell ls '/sdcard/Pictures/signal*' | tr '\r' ' ' | xargs -n1 adb shell rm
+sleep 0.5
+echo "now all media for this contact will be deleted from this conversation"
+read -p "if you dont want this, press control-C now"
+# long press on first picture
+adb shell input touchscreen swipe 240 668 240 668 500
+sleep 0.5
+# click box with dots around it to "select all"
+adb shell input mouse tap 1364 180
+sleep 0.5
+# click trashcan, second from right
+adb shell input mouse tap 1168 207
+sleep 0.5
+# click "yes" to delete all pictures
+adb shell input mouse tap 1206 1504
+sleep 0.5
+# back out of media and out of conversation
+adb shell input keyevent 4
+sleep 0.5
+adb shell input keyevent 4
+sleep 0.5
+
+
+
+
+exit
+# to find out where you're touching while touching the screen: (x=0 at left edge, y=0 at top edge)
+/bin/gettouchcoords
+#send "back"
+adb shell input keyevent 4
