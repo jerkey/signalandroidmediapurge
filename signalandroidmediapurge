@@ -2,15 +2,25 @@
 # TODO: access Movies folder too, start with a whitelist of existing files in Pictures and Movies and ignore those, and grab all files other than those
 # because not all pictures get named signal* sometimes they get named something else like 20170328_144853.jpeg in Pictures and we need them..
 # TODO: access DOCUMENTS too not just MEDIA (tabs are shown when you navigate to 'all media')
-set -e
+set -x
 cd /mint19/home/user/Pictures/phone/signalpix_20191119
-echo "present directory is $PWD and thats where stuff will be sent"
-echo 'hit control-C if you did not FIRST CLEAR Pictures folder of signal-YYYY-MM-DD-hhmmss.* otherwise press ENTER'
+echo "present directory is $PWD and thats where stuff will be saved, in a folder named by you for each conversation"
+read -p 'hit control-C if you do not want to proceed, otherwise press ENTER'
+echo 'now getting a list of existing files in Pictures and Movies'
+# if no non-directory files are found, the grep below will exit with 1
+if adb shell ls -1pd '/sdcard/Pictures/*' '/sdcard/Movies/*' | tr '\r' ' ' | grep -v '/$' > /tmp/signalandroidmediapurge.existing
+then
+  cat /tmp/signalandroidmediapurge.existing
+  echo 'your phone has files in /sdcard/Pictures and/or /sdcard/Movies which need to be removed before we can start'
+  echo '(directories in those folders are OK)'
+  exit 1
+fi
+echo 'ok good, your phone has no files in Movies or Pictures (directories are ok) so we can proceed'
+echo -e 'now (on your phone) navigate to the conversation for which you want to migrate all the media to your PC, and go to \nall media\nand then press ENTER' # different touch spot depending on whether disappearing messages enabled
+read
 read -p "now enter the name of the folder you want to store this conversations pictures in: " DESTFOLDER
 mkdir $DESTFOLDER
 cd $DESTFOLDER
-echo -e 'now navigate to the conversation for which you want to migrate all the pictures, and navigate to \nall media\nand then press ENTER' # different touch spot depending on whether disappearing messages enabled
-read
 # long press on first picture
 adb shell input touchscreen swipe 240 668 240 668 500
 sleep 0.5
@@ -23,14 +33,13 @@ sleep 0.5
 # click "yes" to save all pictures to Pictures/signal*
 adb shell input mouse tap 1206 1504
 sleep 0.5
-# copy all the pictures from the phone to local storage
+# copy all the pictures/movies from the phone to local storage
 echo -e 'now wait for the saving process to finish on the phone, THEN press ENTER'
 read
-adb shell ls '/sdcard/Pictures/signal*' | tr '\r' ' ' | xargs -n1 adb pull -p
-sleep 0.5
-# delete all those pictures from the phone's Pictures folder
-adb shell ls '/sdcard/Pictures/signal*' | tr '\r' ' ' | xargs -n1 adb shell rm
-sleep 0.5
+echo "copy all that media from the phone's Pictures and Movies folders"
+adb shell ls -1pd '/sdcard/Pictures/*' '/sdcard/Movies/*' | tr '\r' ' ' | grep -v '/$' | xargs -n1 adb pull -p
+echo "delete all those files from the phone's Pictures and Movies folders"
+adb shell ls -1pd '/sdcard/Pictures/*'  '/sdcard/Movies/*'| tr '\r' ' ' | grep -v '/$' | xargs -n1 adb shell rm 
 echo "now all media for this contact will be deleted from this conversation"
 read -p "if you dont want this, press control-C now"
 # long press on first picture
@@ -44,18 +53,9 @@ adb shell input mouse tap 1168 207
 sleep 0.5
 # click "yes" to delete all pictures
 adb shell input mouse tap 1206 1504
-sleep 0.5
-# back out of media and out of conversation
-adb shell input keyevent 4
-sleep 0.5
-adb shell input keyevent 4
-sleep 0.5
-
-
-
-
+# unknown how long it will take phone to finish deleting everything
 exit
 # to find out where you're touching while touching the screen: (x=0 at left edge, y=0 at top edge)
-/bin/gettouchcoords
+bin/gettouchcoords
 #send "back"
 adb shell input keyevent 4
