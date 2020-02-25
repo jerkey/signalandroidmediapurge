@@ -22,7 +22,7 @@ read -p "now enter the name of the folder you want to store this conversations p
 mkdir $DESTFOLDER
 cd $DESTFOLDER
 # long press on first picture
-adb shell input touchscreen swipe 240 668 240 668 500
+adb shell input touchscreen swipe 240 912 240 912 500
 sleep 0.5
 # click box with dots around it to "select all"
 adb shell input mouse tap 1364 180
