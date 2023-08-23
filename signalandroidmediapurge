@@ -18,15 +18,17 @@ then
   echo -e 'and then DELETE them from the phone?  Press Control-C if you do NOT want to do this,'
   read -p "otherwise press ENTER to continue"
   echo "copy all that media from the phone's Pictures and Movies folders"
-  mkdir Pictures
+  mkdir -p Pictures
   cd Pictures
   adb shell ls -1pd '/sdcard/Pictures/*' | grep -v '/$' | tr '\n' '$' | sed "s/^/'/" | sed "s/$/'/" | sed "s/\\$/' '/g" | xargs -n1 adb pull -p
-  mkdir ../Movies
+  mkdir -p ../Movies
   cd ../Movies
   adb shell ls -1pd '/sdcard/Movies/*' | grep -v '/$' | tr '\n' '$' | sed "s/^/'/" | sed "s/$/'/" | sed "s/\\$/' '/g" | xargs -n1 adb pull -p
   echo "delete all those files from the phone's Pictures and Movies folders?"
   read -p "Press Control-C if you do NOT want to do this, otherwise press ENTER to continue"
-  adb shell ls -1pd '/sdcard/Pictures/*' '/sdcard/Movies/*' | grep -v '/$' | tr '\n' '$' | sed "s/^/'/" | sed "s/$/'/" | sed "s/\\$/' '/g" | xargs -n10 adb shell rm 
+  TORM=$(adb shell ls -1pd '/sdcard/Pictures/*' '/sdcard/Movies/*' | grep -v '/$' | tr '\n' '$' | sed "s/^/'/" | sed "s/$/'/" | sed "s/\\$/' '/g")
+  echo TORM=$TORM
+  adb shell "rm $TORM"
   exit 1
 fi
 echo 'ok good, your phone has no files in Movies or Pictures (directories are ok) so we can proceed'
