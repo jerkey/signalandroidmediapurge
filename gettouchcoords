@@ -1,6 +1,8 @@
 # this script puts the coordinates of your finger on your android screen into a file
 # goes with the present or most recent place you touched your screen
 # and also a shell command to use adb to simulate the same touch goes into your clipboard
-set -x
+# set -x
+# if [ $(uname) == "Linux" ] ; then
 adb shell dumpsys input | grep MotionEvent | tail -n1 | cut -d"[" -f2 | cut -d"(" -f2 | cut -d")" -f1 | sed 's/\.0//g' | tr -d ',' | tee /tmp/gettouchcoords
-echo -n "adb shell input mouse tap $(cat /tmp/gettouchcoords)" | xclip -i -selection clipboard
+read -p "type name of button you just pressed (no spaces) and press enter" TOUCHNAME
+echo -n "adb shell input mouse tap $(cat /tmp/gettouchcoords)" | tee $TOUCHNAME.coords
